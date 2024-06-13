@@ -18,11 +18,16 @@ wordframe = ttk.Frame(mainframe)
 mainframe.grid(column=0, row=0)
 with open("../assets/words.txt") as words:
     word_pool = words.read().strip().split("\n")
+col = 0
+row = 0
 for _ in range(50):
     current_word = choice(word_pool)
-    print(current_word)
     some_word = Word(mainframe, current_word)
-    some_word.word.grid(column=_)
+    if _ % 5 == 0 and _ > 0:
+        row += 1
+        col = 0
+    some_word.word.grid(column=col, row=row)
+    col += 1
 
 root.mainloop()
 
