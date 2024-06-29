@@ -7,8 +7,9 @@ from tkinter import ttk
 WORD_FILE = Path(Path(getcwd()).parent/'assets/words.txt')
 class Word:
     def __init__(self, frame: ttk.Frame, word: str) -> None:
-        self.word = word
+        self.word = word.lower()
         self.word_label = tk.Label(frame, text=self.word)
+        self.word_label.configure(foreground="black")
 
 
     @staticmethod
