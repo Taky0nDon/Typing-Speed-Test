@@ -15,7 +15,7 @@ def detect_typed_word(textbox: ttk.Entry, wordlist: list[str]) -> str:
 
 
 def main() -> None:
-    gui = Layout()
+    gui = Layout(RANDOM_WORDS)
          
 
 
