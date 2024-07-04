@@ -1,21 +1,15 @@
 from tkinter import ttk
 from time import sleep
 
-from word import Word
+from word import Word, WordManager
 from gui import Layout
+from score_manager import ScoreManager
 
-
-
-RANDOM_WORDS = Word.generate_words()
-def detect_typed_word(textbox: ttk.Entry, wordlist: list[str]) -> str:
-    content = typing_box.get()
-    words = content.strip().split(" ")
-    wordlist.append(words[-1])
-    return wordlist[-1]
 
 
 def main() -> None:
-    gui = Layout(RANDOM_WORDS)
+    gui = Layout(ScoreManager(),
+                 WordManager())
          
 
 

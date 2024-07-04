@@ -11,14 +11,22 @@ class Word:
         self.word_label = tk.Label(frame, text=self.word_value)
         self.word_label.configure(foreground="black")
 
+class WordManager:
+    def __init__(self) -> None:
+        self.word_value_list = self.generate_words()
+        self.current_word_index = 0
+        self.word_objects = []
 
-    @staticmethod
-    def recolor_word(word_list: list['Word'], word_index: int, new_color: str):
+    def recolor_word(self,
+                     word_list: list['Word'],
+                     word_index: int,
+                     new_color: str):
+        """excepts a list of Word objects, the index of the Word to alter, and
+        the new color for the Word foreground"""
         word_list[word_index].word_label.configure(foreground=new_color)
 
 
-    @staticmethod
-    def generate_words() -> list[str]:
+    def generate_words(self) -> list[str]:
         """ Returns a list of random words chosen from the word file"""
         with open(WORD_FILE_PATH) as words:
             word_pool = words.read().strip().split("\n")
