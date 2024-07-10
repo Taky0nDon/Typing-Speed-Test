@@ -1,11 +1,12 @@
 import tkinter as tk
 from tkinter import ttk, StringVar
 from random import choice
-from time import sleep
 
 from word import Word, WordManager
 from score_manager import ScoreManager
 
+
+from test_helpers import get_widget_width, get_widget_height
 
 
 class Layout:
@@ -14,19 +15,49 @@ class Layout:
                  word_mgr: WordManager) -> None:
         self.score_mgmt = score_mgr
         self.word_mgmt = word_mgr
+        self.create_root_window()
+        self.create_widgets()
+        self.get_window_width()
+        self.initialize_score()
+        self.configure_grid()
+        self.get_window_width()
+        get_widget_width(self.word_frame)
+        self.root.mainloop()
+
+    def create_root_window(self):
         self.root = tk.Tk()
         self.root.title("Typing Speed Test")
+
+    def create_widgets(self):
         self.word_frame = ttk.Frame(self.root)
         self.typing_frame = ttk.Frame(self.root)
+        self.show_word_box(self.word_mgmt.word_value_list)
         self.user_input = StringVar()
         self.typing_box_label = ttk.Label(self.typing_frame, text="Start typing!")
         self.typing_box_entry = ttk.Entry(self.typing_frame, textvariable=self.user_input)
         self.typing_box_entry.bind("<space>", self.on_space)
         self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
-        self.initialize_score()
-        self.configure_grid()
-        self.show_word_box(self.word_mgmt.word_value_list)
-        self.root.mainloop()
+
+
+    def configure_grid(self) -> None:
+        self.root.grid_columnconfigure(0, weight=1)
+        self.word_frame.grid(column=0, row=0)
+        self.typing_frame.grid(column=0, row=1)
+        self.typing_box_label.grid(column=0, row=0)
+        self.typing_box_entry.grid(column=1, row=1, columnspan=3)
+
+        self.score_frame.grid(column=1, row=0) 
+        self.missed_label.grid(column=0, row=0)
+        self.correct_label.grid(column=0, row=1)
+        self.missed_count.grid(column=1, row=0)
+        self.accurate_count.grid(column=1, row=1)
+
+        self.exit_button.grid(column=0, row=2)
+
+
+    def get_window_width(self):
+        self.root.update()
+        print(f"window width: {self.root.winfo_width()}")
 
 
     def initialize_score(self):
@@ -35,10 +66,6 @@ class Layout:
         self.correct_label = ttk.Label(self.score_frame, text="Correct: ")
         self.missed_count = ttk.Label(self.score_frame, text=self.score_mgmt.missed)
         self.accurate_count = ttk.Label(self.score_frame, text=self.score_mgmt.correct)
-
-    def update_score(self):
-        self.missed_count.configure(text=self.score_mgmt.missed)
-        self.accurate_count.configure(text=self.score_mgmt.correct)
 
 
     def on_space(self, event):
@@ -83,16 +110,9 @@ class Layout:
                                     self.word_mgmt.current_word_index,
                                     "white")
 
-    def configure_grid(self) -> None:
-        self.word_frame.grid(column=0, row=0)
-        self.typing_frame.grid(column=0, row=1)
-        self.typing_box_label.grid(column=0, row=0)
-        self.typing_box_entry.grid(column=1, row=1)
+    def update_score(self):
+        self.missed_count.configure(text=self.score_mgmt.missed)
+        self.accurate_count.configure(text=self.score_mgmt.correct)
 
-        self.score_frame.grid(column=1, row=0)
-        self.missed_label.grid(column=0, row=0)
-        self.correct_label.grid(column=0, row=1)
-        self.missed_count.grid(column=1, row=0)
-        self.accurate_count.grid(column=1, row=1)
 
-        self.exit_button.grid(column=0, row=2)
+
