@@ -16,15 +16,11 @@ class Layout:
         self.score_mgmt = score_mgr
         self.word_mgmt = word_mgr
         self.create_root_window()
+        self.textbox_start_offset_int=0
         self.create_widgets()
-        self.get_window_width()
         self.initialize_score()
         self.configure_grid()
-        self.get_window_width()
-        get_widget_width(self.word_frame)
         self.root.mainloop()
-    def create_canvas(self, parent: tk.Widget):
-        self.typing_canvas = tk.Canvas(parent)
 
 
     def create_root_window(self):
@@ -33,12 +29,12 @@ class Layout:
 
     def create_widgets(self):
         self.word_frame = ttk.Frame(self.root)
-        self.typing_frame = ttk.Frame(self.root)
         self.show_word_box(self.word_mgmt.word_value_list)
-        self.user_input = StringVar()
-        self.typing_box_label = ttk.Label(self.typing_frame, text="Start typing!")
-        self.typing_box_entry = ttk.Entry(self.typing_frame, textvariable=self.user_input)
-        self.typing_box_entry.bind("<space>", self.on_space)
+        self.typing_frame = ttk.Frame(self.root)
+        self.typing_box = tk.Text(self.typing_frame,
+                                  height=10,
+                                  width=50)
+        self.typing_box.bind("<space>", self.on_space)
         self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
 
 
@@ -46,8 +42,7 @@ class Layout:
         self.root.grid_columnconfigure(0, weight=1)
         self.word_frame.grid(column=0, row=0)
         self.typing_frame.grid(column=0, row=1)
-        self.typing_box_label.grid(column=0, row=0)
-        self.typing_box_entry.grid(column=1, row=1, columnspan=3)
+        self.typing_box.grid(column=1, row=1, columnspan=3)
 
         self.score_frame.grid(column=1, row=0) 
         self.missed_label.grid(column=0, row=0)
@@ -74,6 +69,7 @@ class Layout:
     def on_space(self, event):
         word_index = self.word_mgmt.current_word_index
         current_word_val = self.word_mgmt.word_objects[word_index].word_value
+        self.textbox_start_position = f"1.{self.textbox_start_offset_int}"
         if event.keysym == "space":
             if word_index < len(self.word_mgmt.word_objects) - 1:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
@@ -81,7 +77,11 @@ class Layout:
                                             "white")
             else:
                 pass # End the test.
-            last_typed_word = self.user_input.get().split(' ')[-1]
+            last_typed_word = self.typing_box.get(self.textbox_start_position,tk.END).strip()
+            self.textbox_start_offset_int += len(last_typed_word) + 1
+            print(f"_{last_typed_word}_")
+            print(f"{self.textbox_start_offset_int}")
+            print(f"{self.textbox_start_position=}")
             if current_word_val == last_typed_word:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
                                             self.word_mgmt.current_word_index,
