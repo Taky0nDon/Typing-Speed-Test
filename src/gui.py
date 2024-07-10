@@ -23,6 +23,9 @@ class Layout:
         self.get_window_width()
         get_widget_width(self.word_frame)
         self.root.mainloop()
+    def create_canvas(self, parent: tk.Widget):
+        self.typing_canvas = tk.Canvas(parent)
+
 
     def create_root_window(self):
         self.root = tk.Tk()
