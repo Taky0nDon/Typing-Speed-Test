@@ -20,7 +20,6 @@ class Layout:
         self.create_widgets()
         self.initialize_score()
         self.configure_grid()
-        self.root.mainloop()
 
 
     def create_root_window(self):
@@ -55,7 +54,6 @@ class Layout:
 
     def get_window_width(self):
         self.root.update()
-        print(f"window width: {self.root.winfo_width()}")
 
 
     def initialize_score(self):
@@ -76,12 +74,9 @@ class Layout:
                                             self.word_mgmt.current_word_index+1,
                                             "white")
             else:
-                pass # End the test.
+                print("You typed all the words!")
             last_typed_word = self.typing_box.get(self.textbox_start_position,tk.END).strip()
             self.textbox_start_offset_int += len(last_typed_word) + 1
-            print(f"_{last_typed_word}_")
-            print(f"{self.textbox_start_offset_int}")
-            print(f"{self.textbox_start_position=}")
             if current_word_val == last_typed_word:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
                                             self.word_mgmt.current_word_index,
@@ -94,6 +89,7 @@ class Layout:
                                             "red")
             self.word_mgmt.current_word_index +=1     
             self.update_score()
+            print(f"{self.score_mgmt.correct=}")
 
 
 
