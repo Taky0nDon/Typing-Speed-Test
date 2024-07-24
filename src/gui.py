@@ -6,7 +6,7 @@ from word import Word, WordManager
 from score_manager import ScoreManager
 
 
-from test_helpers import get_widget_width, get_widget_height
+from readonlytext import ReadonlyText
 
 
 class Layout:
@@ -30,7 +30,7 @@ class Layout:
         self.word_frame = ttk.Frame(self.root)
         self.show_word_box(self.word_mgmt.word_value_list)
         self.typing_frame = ttk.Frame(self.root)
-        self.typing_box = tk.Text(self.typing_frame,
+        self.typing_box = ReadonlyText(self.typing_frame,
                                   height=10,
                                   width=50)
         self.typing_box.bind("<space>", self.on_space)
@@ -44,10 +44,10 @@ class Layout:
         self.typing_box.grid(column=1, row=1, columnspan=3)
 
         self.score_frame.grid(column=1, row=0) 
-        self.missed_label.grid(column=0, row=0)
-        self.correct_label.grid(column=0, row=1)
-        self.missed_count.grid(column=1, row=0)
-        self.accurate_count.grid(column=1, row=1)
+        self.missed_word_label.grid(column=0, row=0)
+        self.correct_word_label.grid(column=0, row=1)
+        self.missed_word_count.grid(column=1, row=0)
+        self.accurate_word_count.grid(column=1, row=1)
 
         self.exit_button.grid(column=0, row=2)
 
@@ -58,16 +58,21 @@ class Layout:
 
     def initialize_score(self):
         self.score_frame = ttk.Frame(self.root)
-        self.missed_label = ttk.Label(self.score_frame, text="Missed: ")
-        self.correct_label = ttk.Label(self.score_frame, text="Correct: ")
-        self.missed_count = ttk.Label(self.score_frame, text=self.score_mgmt.missed)
-        self.accurate_count = ttk.Label(self.score_frame, text=self.score_mgmt.correct)
+        self.missed_word_label = ttk.Label(self.score_frame, text="Missed: ")
+        self.correct_word_label = ttk.Label(self.score_frame, text="Correct: ")
+        self.error_label = ttk.Label(self.score_frame, text="Errors:")
+        self.missed_word_count = ttk.Label(self.score_frame, text=self.score_mgmt.missed_words)
+        self.accurate_word_count = ttk.Label(self.score_frame, text=self.score_mgmt.correct_words)
+        self.error_count = ttk.Label(self.score_frame, text=self.score_mgmt.missed_chars)
 
 
     def on_space(self, event):
         word_index = self.word_mgmt.current_word_index
         current_word_val = self.word_mgmt.word_objects[word_index].word_value
         self.textbox_start_position = f"1.{self.textbox_start_offset_int}"
+        cursor_min = None
+        self.typing_box.insert(f"1.{word_index}", "i", "readonly")
+        print(word_index)
         if event.keysym == "space":
             if word_index < len(self.word_mgmt.word_objects) - 1:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
@@ -81,15 +86,15 @@ class Layout:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
                                             self.word_mgmt.current_word_index,
                                             "green")
-                self.score_mgmt.increase_correct()
+                self.score_mgmt.increase_correct_count(last_typed_word)
             else:
-                self.score_mgmt.increase_missed()
+                self.score_mgmt.increase_missed_count(target_word=current_word_val,
+                                                      typed_word=last_typed_word)
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
                                             self.word_mgmt.current_word_index, 
                                             "red")
             self.word_mgmt.current_word_index +=1     
             self.update_score()
-            print(f"{self.score_mgmt.correct=}")
 
 
 
@@ -110,8 +115,9 @@ class Layout:
                                     "white")
 
     def update_score(self):
-        self.missed_count.configure(text=self.score_mgmt.missed)
-        self.accurate_count.configure(text=self.score_mgmt.correct)
+        self.missed_word_count.configure(text=self.score_mgmt.missed_words)
+        self.accurate_word_count.configure(text=self.score_mgmt.correct_words)
+        self.error_count.configure(text=self.score_mgmt.missed_chars)
 
 
 
