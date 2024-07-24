@@ -59,9 +59,11 @@ class Layout:
         self.missed_word_label.grid(column=0, row=0)
         self.correct_word_label.grid(column=0, row=1)
         self.error_label.grid(column=0, row=2)
+        self.chars_label.grid(column=0, row=3)
         self.missed_word_count.grid(column=1, row=0)
         self.accurate_word_count.grid(column=1, row=1)
         self.error_count.grid(column=1, row=2)
+        self.chars_count.grid(column=1, row=3)
 
         self.exit_button.grid(column=0, row=2)
 
@@ -79,7 +81,9 @@ class Layout:
         self.score_frame = ttk.Frame(self.root)
         self.missed_word_label = ttk.Label(self.score_frame, text="Missed: ")
         self.correct_word_label = ttk.Label(self.score_frame, text="Correct: ")
-        self.error_label = ttk.Label(self.score_frame, text="Errors:")
+        self.error_label = ttk.Label(self.score_frame, text="Errors: ")
+        self.chars_label = ttk.Label(self.score_frame, text="Typed: ")
+
         self.missed_word_count = ttk.Label(
             self.score_frame, text=self.score_mgmt.missed_words
         )
@@ -89,12 +93,14 @@ class Layout:
         self.error_count = ttk.Label(
             self.score_frame, text=self.score_mgmt.missed_chars
         )
+        self.chars_count = ttk.Label(
+                self.score_frame, text=self.score_mgmt.typed_chars
+        )
 
     def on_space(self, event):
         word_index = self.word_mgmt.current_word_index
         current_word_val = self.word_mgmt.word_objects[word_index].word_value
         self.textbox_start_position = f"1.{self.textbox_start_offset_int}"
-        cursor_min = None
         if event.keysym == "space":
             if word_index < len(self.word_mgmt.word_objects) - 1:
                 self.word_mgmt.recolor_word(
@@ -147,3 +153,4 @@ class Layout:
         self.missed_word_count.configure(text=self.score_mgmt.missed_words)
         self.accurate_word_count.configure(text=self.score_mgmt.correct_words)
         self.error_count.configure(text=self.score_mgmt.missed_chars)
+        self.chars_count.configugre(text=self.score_mgmt.typed_chars)

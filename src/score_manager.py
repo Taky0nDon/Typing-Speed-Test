@@ -41,3 +41,6 @@ class ScoreManager:
 
         self.missed_chars += len_difference
 
+    def update_typed_chars(self, chars_typed: int) -> None:
+        self.typed_chars = chars_typed
+
