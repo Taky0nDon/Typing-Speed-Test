@@ -1,10 +1,12 @@
+import os
 import tkinter as tk
 from pathlib import Path
 from os import getcwd
 from tkinter import ttk
 
 
-WORD_FILE_PATH = Path(Path(getcwd()).parent/'assets/words.txt')
+WORD_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+WORD_FILE_PATH = Path(Path(WORD_FILE_DIR).parent/'assets/words.txt')
 class Word:
     def __init__(self, frame: ttk.Frame, word: str) -> None:
         self.word_value = word.lower()

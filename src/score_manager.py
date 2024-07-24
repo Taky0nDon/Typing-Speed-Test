@@ -8,6 +8,7 @@ class ScoreManager:
        self.missed_chars = 0
        self.correct_words = 0
        self.correct_chars = 0
+       self.typed_chars = 0
 
     def increase_missed_count(self, target_word: str, typed_word: str):
         self.missed_words += 1
