@@ -10,17 +10,19 @@ TEST_LENGTH_MS = 10000
 
 score_manager = ScoreManager()
 gui = Layout(score_manager,
-             WordManager()
+             WordManager(),
+             TEST_LENGTH_MS
              )
 
 def end_test():
-        words_typed = score_manager.missed + score_manager.correct
+        words_typed = score_manager.missed_words + score_manager.correct_words
         print(f"You typed {words_typed} "
-          f"words! You missed {score_manager.missed} of them. Your score " 
-          f"is {round(score_manager.correct / words_typed, 2) * 100}%!"
+          f"words! You missed {score_manager.missed_words} of them. Your score " 
+          f"is {round(score_manager.correct_words / words_typed, 2) * 100}%!"
           )
 
 def main() -> None:
+    gui.root.after(1000, gui.decrement_countdown)
     gui.root.after(TEST_LENGTH_MS, end_test)
     gui.root.mainloop()
          

@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, StringVar
+from tkinter import ttk
 from random import choice
 
 from word import Word, WordManager
@@ -12,9 +12,11 @@ from readonlytext import ReadonlyText
 class Layout:
     def __init__(self,
                  score_mgr: ScoreManager,
-                 word_mgr: WordManager) -> None:
+                 word_mgr: WordManager,
+                 test_length) -> None:
         self.score_mgmt = score_mgr
         self.word_mgmt = word_mgr
+        self.seconds_remaining = test_length / 1000
         self.create_root_window()
         self.textbox_start_offset_int=0
         self.create_widgets()
@@ -29,7 +31,11 @@ class Layout:
     def create_widgets(self):
         self.word_frame = ttk.Frame(self.root)
         self.show_word_box(self.word_mgmt.word_value_list)
+        self.countdown_frame = ttk.Frame(self.root)
         self.typing_frame = ttk.Frame(self.root)
+        self.countdown_label = ttk.Label(self.countdown_frame,
+                                         text=f"{self.seconds_remaining} sec")
+
         self.typing_box = ReadonlyText(self.typing_frame,
                                   height=10,
                                   width=50)
@@ -40,16 +46,28 @@ class Layout:
     def configure_grid(self) -> None:
         self.root.grid_columnconfigure(0, weight=1)
         self.word_frame.grid(column=0, row=0)
+        self.countdown_frame.grid(column=0, row=0, sticky="W")
         self.typing_frame.grid(column=0, row=1)
+        self.score_frame.grid(column=1, row=0) 
+
         self.typing_box.grid(column=1, row=1, columnspan=3)
 
-        self.score_frame.grid(column=1, row=0) 
+        self.countdown_label.grid(column=0, row=3)
+
         self.missed_word_label.grid(column=0, row=0)
         self.correct_word_label.grid(column=0, row=1)
+        self.error_label.grid(column=0, row=2)
         self.missed_word_count.grid(column=1, row=0)
         self.accurate_word_count.grid(column=1, row=1)
+        self.error_count.grid(column=1, row=2)
 
         self.exit_button.grid(column=0, row=2)
+
+
+    def decrement_countdown(self):
+        self.seconds_remaining -= 1
+        self.countdown_label.configure(text=f"{self.seconds_remaining} sec")
+        self.root.after(1000, self.decrement_countdown)
 
 
     def get_window_width(self):
@@ -71,8 +89,6 @@ class Layout:
         current_word_val = self.word_mgmt.word_objects[word_index].word_value
         self.textbox_start_position = f"1.{self.textbox_start_offset_int}"
         cursor_min = None
-        self.typing_box.insert(f"1.{word_index}", "i", "readonly")
-        print(word_index)
         if event.keysym == "space":
             if word_index < len(self.word_mgmt.word_objects) - 1:
                 self.word_mgmt.recolor_word(self.word_mgmt.word_objects,
