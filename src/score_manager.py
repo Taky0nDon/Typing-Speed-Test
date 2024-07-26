@@ -44,3 +44,16 @@ class ScoreManager:
     def update_typed_chars(self, chars_typed: int) -> None:
         self.typed_chars = chars_typed
 
+    def show_stats(self):
+        """This function is called when the test ends, either due to all words
+        being typed, or time running out.
+        Parameters:
+        """
+        words_typed = self.missed_words + self.correct_words
+        print(
+            f"You typed {words_typed} "
+            f"words! You missed {self.missed_words} of them. Your score "
+            f"is {round(self.correct_words / words_typed, 2) * 100}%!"
+        )
+
+
