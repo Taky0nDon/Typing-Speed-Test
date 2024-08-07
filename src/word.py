@@ -13,7 +13,7 @@ class Word:
         self.word_label = tk.Label(frame, text=self.word_value)
         self.word_label.configure(foreground="black")
 
-class WordManager:
+class WordManager():
     def __init__(self) -> None:
         self.word_value_list = self.generate_words()
         self.current_word_index = 0

@@ -1,4 +1,4 @@
-class ScoreManager:
+class ScoreManager():
     """
     This class keeps track of how many words were typed correctly, and how
     many contained errors. It has methods for incrementing each count.
