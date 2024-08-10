@@ -77,7 +77,6 @@ class Layout:
 
     def user_has_typed(self) -> bool:
         box_content = self.typing_box.get(0.1, tk.END).strip("\n")
-        print(f"{box_content=}")
         text_in_box = len(box_content) > 0
         if text_in_box:
             return True
@@ -88,21 +87,38 @@ class Layout:
         Function initiates the countdown if there is text in the box
         """
         if self.user_has_typed():
-            print("text detected")
-            self.update_time_remaining()
+            self.tick()
         else:
-            print("Calling myself.")
             self.root.after(1000, self.begin_countdown)
 
     def update_time_remaining(self):
         """Decreases countdown label by 1 every 1000ms"""
         self.countdown.decrement_countdown()
         self.countdown_label.configure(text=f"{self.countdown.seconds_remaining} sec")
+
+    def tick(self) -> None:
+        """
+        Actions that occur every 1000 ms
+        """
+        self.update_time_remaining()
+        box_contents = self.typing_box.get(0.1, tk.END).strip()
+        self.score_mgmt.update_typed_chars(box_contents)
+        print(fr"{box_contents=}")
+        self.score_mgmt.update_accuracy()
         if self.countdown.seconds_remaining == 0:
-            print(self.start - time())
+            print(time() - self.start)
+            print(f"{self.score_mgmt.accuracy=}")
             self.terminate_grid()
-            exit()
-        self.root.after(1000, self.update_time_remaining)
+            self.show_end_screen()
+            return
+        self.root.after(1000, self.tick)
+
+    def update_score(self):
+        """Displays up to date statistics as the user types"""
+        self.missed_word_count.configure(text=self.score_mgmt.missed_words)
+        self.accurate_word_count.configure(text=self.score_mgmt.correct_words)
+        self.error_count.configure(text=self.score_mgmt.missed_chars)
+        self.chars_count.configure(text=self.score_mgmt.typed_chars)
 
     def render_score(self, is_new_test: bool):
         """
@@ -145,10 +161,10 @@ class Layout:
         to the current word in the word box in order to determine whether it
         was typed correctly.
         """
-        word_index = self.word_mgmt.current_word_index
-        current_word_val = self.word_mgmt.word_objects[word_index].word_value
+        target_word_index = self.word_mgmt.current_word_index
+        target_word_val = self.word_mgmt.word_objects[target_word_index].word_value
         self.textbox_start_position = f"1.{self.textbox_start_offset_int}"
-        if word_index < len(self.word_mgmt.word_objects) - 1:
+        if target_word_index < len(self.word_mgmt.word_objects) - 1:
             self.word_mgmt.recolor_word(
                 self.word_mgmt.word_objects,
                 self.word_mgmt.current_word_index + 1,
@@ -160,7 +176,7 @@ class Layout:
             self.textbox_start_position, tk.END
         ).strip()
         self.textbox_start_offset_int += len(last_typed_word) + 1
-        if current_word_val == last_typed_word:
+        if target_word_val == last_typed_word:
             self.word_mgmt.recolor_word(
                 self.word_mgmt.word_objects,
                 self.word_mgmt.current_word_index,
@@ -169,7 +185,7 @@ class Layout:
             self.score_mgmt.increase_correct_count(last_typed_word)
         else:
             self.score_mgmt.increase_missed_count(
-                target_word=current_word_val, typed_word=last_typed_word
+                target_word=target_word_val, typed_word=last_typed_word
             )
             self.word_mgmt.recolor_word(
                 self.word_mgmt.word_objects,
@@ -202,29 +218,27 @@ class Layout:
     def terminate_grid(self):
         for child in self.root.winfo_children():
             child.grid_remove()
-        self.show_end_screen()
 
     def restart_test(self):
-        for child in self.root.winfo_children():
-            child.grid_remove()
+        self.terminate_grid()
         self.countdown.seconds_remaining = self.countdown.starting_value
         self.create_widgets(is_new_test=True)
         self.configure_grid()
+        self.begin_countdown()
 
     def show_end_screen(self):
         self.end_options_frame = ttk.Frame(self.root)
-        self.end_options_frame.grid(column=0, row=1)
-        restart_button = ttk.Button(
+        self.final_results_frame = ttk.Frame(self.root)
+        self.accuracy_label = ttk.Label(self.final_results_frame,
+                                        text=f"Accuracy: {self.score_mgmt.accuracy}")
+        self.accuracy_label.grid(column=0, row=2)
+        self.restart_button = ttk.Button(
             self.end_options_frame, text="restart", command=self.restart_test
         )
         self.exit_button = ttk.Button(self.end_options_frame, text="Quit", command=exit)
-        restart_button.grid(column=0, row=1)
+        self.end_options_frame.grid(column=0, row=0)
+        self.final_results_frame.grid(column=0, row=2)
+        self.restart_button.grid(column=0, row=3)
         self.exit_button.grid(column=0, row=2)
-        self.configure_grid_score(frame_pos=(0, 0))
+        # self.configure_grid_score(frame_pos=(0, 0))
 
-    def update_score(self):
-        """Displays up to date statistics as the user types"""
-        self.missed_word_count.configure(text=self.score_mgmt.missed_words)
-        self.accurate_word_count.configure(text=self.score_mgmt.correct_words)
-        self.error_count.configure(text=self.score_mgmt.missed_chars)
-        self.chars_count.configure(text=self.score_mgmt.typed_chars)
