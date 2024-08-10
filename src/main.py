@@ -3,6 +3,7 @@ from time import time
 from gui import Layout
 
 
+#TODO: Make test length on optional terminal argument
 TEST_LENGTH_MS = 60000
 
 
