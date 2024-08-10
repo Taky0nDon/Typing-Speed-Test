@@ -9,16 +9,25 @@ class ScoreManager():
        self.correct_words = 0
        self.correct_chars = 0
        self.typed_chars = 0
+       self.accuracy = "0.00%"
+
+    def update_accuracy(self) -> str:
+        """
+        Returns a float representing the number of correct characters divided
+        by total characters
+        """
+        print("Updating accuracy...",
+              f"{self.correct_chars=}, {self.typed_chars=}")
+        self.accuracy = f"{(self.correct_chars / self.typed_chars) * 100:.2f}%"
+        return self.accuracy
 
     def increase_missed_count(self, target_word: str, typed_word: str):
         self.missed_words += 1
         self.calculate_char_errors(target=target_word, typed=typed_word)
 
-
     def increase_correct_count(self, typed_word: str):
         self.correct_words += 1
-        self.correct_chars = len(typed_word) + 1  # Need to add 1  to account
-                                                  # for space
+        self.correct_chars += len(typed_word)
 
     def calculate_char_errors(self, target: str='', typed: str='') -> None:
         """
@@ -28,32 +37,23 @@ class ScoreManager():
         if not target or not typed:
             return
         if len(typed) < len(target):
-            base, other = typed, target
+            shorter, longer = typed, target
         else:
-            base, other = target, target
+            shorter, longer = target, target
 
-        len_difference = len(other) - len(base)
+        len_difference = len(longer) - len(shorter)
         idx = 0
-        for char in base:
-            if char != other[idx]:
+        for char in shorter:
+            if char != longer[idx]:
+                print("You missed.")
                 self.missed_chars += 1
+            else:
+                print("here")
+                self.correct_chars += 1
             idx +=1 
 
         self.missed_chars += len_difference
 
-    def update_typed_chars(self, chars_typed: int) -> None:
-        self.typed_chars = chars_typed
-
-    def show_stats(self):
-        """This function is called when the test ends, either due to all words
-        being typed, or time running out.
-        Parameters:
-        """
-        words_typed = self.missed_words + self.correct_words
-        print(
-            f"You typed {words_typed} "
-            f"words! You missed {self.missed_words} of them. Your score "
-            f"is {round(self.correct_words / words_typed, 2) * 100}%!"
-        )
-
+    def update_typed_chars(self, typed_content: str) -> None:
+        self.typed_chars = len(typed_content.replace(" ", "").strip("\n"))
 
