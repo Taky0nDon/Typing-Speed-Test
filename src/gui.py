@@ -58,7 +58,7 @@ class Layout:
         self.restart_button = ttk.Button(
             self.end_options_frame, text="restart", command=self.restart_test
         )
-        self.exit_button = ttk.Button(self.end_options_frame, text="Quit", command=exit)
+        self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
         self.wpm_label = ttk.Label(self.final_results_frame, text="wpm")
 
     def configure_grid(self) -> None:
@@ -69,7 +69,7 @@ class Layout:
         self.typing_frame.grid(column=0, row=1)
         self.typing_box.grid(column=1, row=1, columnspan=3)
         self.countdown_label.grid(column=0, row=3)
-        self.exit_button.grid(column=0, row=2)
+        self.exit_button.grid(column=0, row=4)
         self.configure_grid_score(frame_pos=(2, 0))
 
     def configure_grid_score(
@@ -213,10 +213,10 @@ class Layout:
         """
         row = 0
         col = 0
-        for _ in range(50):
-            current_word_value = choice(word_bank)
-            some_word = Word(self.word_frame, current_word_value)
-            if _ % 5 == 0 and _ > 0:
+        the_words = self.word_mgmt.choose_random_words()
+        for idx, word in enumerate(the_words):
+            some_word = Word(self.word_frame, word)
+            if idx % 5 == 0 and idx > 0:
                 row += 1
                 col = 0
             some_word.word_label.grid(column=col, row=row)
@@ -238,11 +238,11 @@ class Layout:
         self.begin_countdown()
 
     def show_end_screen(self):
+        self.final_results_frame.grid(column=0, row=0)
+        self.end_options_frame.grid(column=0, row=1)
+        self.accuracy_label.grid(column=0, row=0)
         self.wpm_label.configure(text=f"{len(self.box_content)} wpm")
-        self.final_results_frame.grid(column=0, row=2)
-        self.accuracy_label.grid(column=0, row=2)
-        self.wpm_label.grid(column=0, row=3)
-        self.end_options_frame.grid(column=0, row=0)
-        self.restart_button.grid(column=0, row=3)
-        self.exit_button.grid(column=0, row=2)
+        self.wpm_label.grid(column=0, row=1)
+        self.restart_button.grid(column=0, row=0)
+        self.exit_button.grid(column=0, row=3)
         # self.configure_grid_score(frame_pos=(0, 0))
