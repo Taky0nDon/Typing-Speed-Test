@@ -43,7 +43,7 @@ class Layout:
         self.countdown_label = ttk.Label(
             self.countdown_frame, text=f"{self.countdown.seconds_remaining} sec"
         )
-        self.typing_box = ReadonlyText(self.typing_frame, height=10, width=50)
+        self.typing_box = ReadonlyText(self.typing_frame, height=10, width=50,)
         self.typing_box.bind("<space>", self.on_space)
         self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
         self.render_score(is_new_test=is_new_test)
@@ -102,7 +102,7 @@ class Layout:
         if self.user_has_typed():
             self.tick()
         else:
-            self.root.after(1000, self.begin_countdown)
+            self.root.after(500, self.begin_countdown)
 
     def update_time_remaining(self):
         """Decreases countdown label by 1 every 1000ms"""
@@ -115,8 +115,7 @@ class Layout:
         """
         print(self.countdown.seconds_remaining)
         self.update_time_remaining()
-        self.box_content = self.typing_box.get(0.1, tk.END)
-        self.score_mgmt.update_typed_chars(self.box_content)
+        self.score_mgmt.update_typed_chars(self.typing_box.get("1.0", tk.END))
         self.score_mgmt.update_accuracy()
         if self.countdown.seconds_remaining < 0:
             print(time() - self.start)
