@@ -23,9 +23,9 @@ class Layout:
         out of time, or the user typing all the displayed words
         """
         self.score_mgmt = ScoreManager()
-        self.start = time()
         self.word_mgmt = WordManager()
         self.countdown = Countdown(test_length_ms // 1000)
+        self.tick_length = 1000
         self.textbox_start_offset_int = 0
         self.create_root_window()
         self.create_widgets(is_new_test=False)
@@ -50,6 +50,17 @@ class Layout:
         self.render_score(is_new_test=is_new_test)
         self.show_word_box(self.word_mgmt.word_value_list)
 
+        self.end_options_frame = ttk.Frame(self.root)
+        self.final_results_frame = ttk.Frame(self.root)
+        self.accuracy_label = ttk.Label(
+            self.final_results_frame, text=f"Accuracy: {self.score_mgmt.accuracy}"
+        )
+        self.restart_button = ttk.Button(
+            self.end_options_frame, text="restart", command=self.restart_test
+        )
+        self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
+        self.wpm_label = ttk.Label(self.final_results_frame, text="wpm")
+
     def configure_grid(self) -> None:
         """Places all widgets in the grid for the testing state"""
         self.root.grid_columnconfigure(0, weight=1)
@@ -58,7 +69,7 @@ class Layout:
         self.typing_frame.grid(column=0, row=1)
         self.typing_box.grid(column=1, row=1, columnspan=3)
         self.countdown_label.grid(column=0, row=3)
-        self.exit_button.grid(column=0, row=2)
+        self.exit_button.grid(column=0, row=4)
         self.configure_grid_score(frame_pos=(2, 0))
 
     def configure_grid_score(
@@ -75,13 +86,6 @@ class Layout:
         self.error_count.grid(column=1, row=2)
         self.chars_count.grid(column=1, row=3)
 
-    def user_has_typed(self) -> bool:
-        box_content = self.typing_box.get(0.1, tk.END).strip("\n")
-        text_in_box = len(box_content) > 0
-        if text_in_box:
-            return True
-        return False
-
     def begin_countdown(self):
         """
         Function initiates the countdown if there is text in the box
@@ -89,7 +93,15 @@ class Layout:
         if self.user_has_typed():
             self.tick()
         else:
-            self.root.after(1000, self.begin_countdown)
+            self.root.after(self.tick_length, self.begin_countdown)
+
+    def user_has_typed(self) -> bool:
+        self.box_content = self.typing_box.get(0.1, tk.END).strip("\n")
+        text_in_box = len(self.box_content) > 0
+        if text_in_box:
+            self.start = time()
+            return True
+        return False
 
     def update_time_remaining(self):
         """Decreases countdown label by 1 every 1000ms"""
@@ -98,20 +110,19 @@ class Layout:
 
     def tick(self) -> None:
         """
-        Actions that occur every 1000 ms
+        Actions that occur every $self.tick_length ms
         """
+        print(self.countdown.seconds_remaining)
         self.update_time_remaining()
-        box_contents = self.typing_box.get(0.1, tk.END).strip()
-        self.score_mgmt.update_typed_chars(box_contents)
-        print(fr"{box_contents=}")
+        self.score_mgmt.update_typed_chars(self.typing_box.get("1.0", tk.END))
         self.score_mgmt.update_accuracy()
-        if self.countdown.seconds_remaining == 0:
+        if self.countdown.seconds_remaining < 0:
             print(time() - self.start)
             print(f"{self.score_mgmt.accuracy=}")
             self.terminate_grid()
             self.show_end_screen()
-            return
-        self.root.after(1000, self.tick)
+        else:
+            self.root.after(self.tick_length, self.tick)
 
     def update_score(self):
         """Displays up to date statistics as the user types"""
@@ -202,10 +213,10 @@ class Layout:
         """
         row = 0
         col = 0
-        for _ in range(50):
-            current_word_value = choice(word_bank)
-            some_word = Word(self.word_frame, current_word_value)
-            if _ % 5 == 0 and _ > 0:
+        the_words = self.word_mgmt.choose_random_words()
+        for idx, word in enumerate(the_words):
+            some_word = Word(self.word_frame, word)
+            if idx % 5 == 0 and idx > 0:
                 row += 1
                 col = 0
             some_word.word_label.grid(column=col, row=row)
@@ -227,18 +238,11 @@ class Layout:
         self.begin_countdown()
 
     def show_end_screen(self):
-        self.end_options_frame = ttk.Frame(self.root)
-        self.final_results_frame = ttk.Frame(self.root)
-        self.accuracy_label = ttk.Label(self.final_results_frame,
-                                        text=f"Accuracy: {self.score_mgmt.accuracy}")
-        self.accuracy_label.grid(column=0, row=2)
-        self.restart_button = ttk.Button(
-            self.end_options_frame, text="restart", command=self.restart_test
-        )
-        self.exit_button = ttk.Button(self.end_options_frame, text="Quit", command=exit)
-        self.end_options_frame.grid(column=0, row=0)
-        self.final_results_frame.grid(column=0, row=2)
-        self.restart_button.grid(column=0, row=3)
-        self.exit_button.grid(column=0, row=2)
+        self.final_results_frame.grid(column=0, row=0)
+        self.end_options_frame.grid(column=0, row=1)
+        self.accuracy_label.grid(column=0, row=0)
+        self.wpm_label.configure(text=f"{len(self.box_content)} wpm")
+        self.wpm_label.grid(column=0, row=1)
+        self.restart_button.grid(column=0, row=0)
+        self.exit_button.grid(column=0, row=3)
         # self.configure_grid_score(frame_pos=(0, 0))
-

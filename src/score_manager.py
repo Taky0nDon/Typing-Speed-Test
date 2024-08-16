@@ -16,9 +16,9 @@ class ScoreManager():
         Returns a float representing the number of correct characters divided
         by total characters
         """
-        print("Updating accuracy...",
-              f"{self.correct_chars=}, {self.typed_chars=}")
-        self.accuracy = f"{(self.correct_chars / self.typed_chars) * 100:.2f}%"
+        if self.typed_chars > 0:
+            self.accuracy = f"{(self.correct_chars / self.typed_chars) * 100:.2f}%"
+            return self.accuracy
         return self.accuracy
 
     def increase_missed_count(self, target_word: str, typed_word: str):
@@ -45,10 +45,8 @@ class ScoreManager():
         idx = 0
         for char in shorter:
             if char != longer[idx]:
-                print("You missed.")
                 self.missed_chars += 1
             else:
-                print("here")
                 self.correct_chars += 1
             idx +=1 
 
@@ -56,4 +54,12 @@ class ScoreManager():
 
     def update_typed_chars(self, typed_content: str) -> None:
         self.typed_chars = len(typed_content.replace(" ", "").strip("\n"))
+
+    def get_words(self, typed_content: str):
+        """
+        Returns the number of 'words' in the typed content. For the purposes of this method,
+        a `word` is five consecutive characters.
+        """
+        word_count = len(typed_content) // 5
+        return word_count
 
