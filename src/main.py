@@ -13,7 +13,6 @@ def main() -> None:
 
     gui = Layout(TEST_LENGTH_MS)
     gui.begin_countdown()
-    gui.root.after(TEST_LENGTH_MS, gui.terminate_grid)
     gui.root.mainloop()
 
 

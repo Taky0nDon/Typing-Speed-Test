@@ -86,14 +86,6 @@ class Layout:
         self.error_count.grid(column=1, row=2)
         self.chars_count.grid(column=1, row=3)
 
-    def user_has_typed(self) -> bool:
-        self.box_content = self.typing_box.get(0.1, tk.END).strip("\n")
-        text_in_box = len(self.box_content) > 0
-        if text_in_box:
-            self.start = time()
-            return True
-        return False
-
     def begin_countdown(self):
         """
         Function initiates the countdown if there is text in the box
@@ -102,6 +94,14 @@ class Layout:
             self.tick()
         else:
             self.root.after(self.tick_length, self.begin_countdown)
+
+    def user_has_typed(self) -> bool:
+        self.box_content = self.typing_box.get(0.1, tk.END).strip("\n")
+        text_in_box = len(self.box_content) > 0
+        if text_in_box:
+            self.start = time()
+            return True
+        return False
 
     def update_time_remaining(self):
         """Decreases countdown label by 1 every 1000ms"""
