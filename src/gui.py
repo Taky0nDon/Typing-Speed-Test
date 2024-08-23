@@ -27,6 +27,7 @@ class Layout:
         self.countdown = Countdown(test_length_ms // 1000)
         self.tick_length = 1000
         self.textbox_start_offset_int = 0
+        self.test_length_ms = test_length_ms
         self.create_root_window()
         self.create_widgets(is_new_test=False)
         self.configure_grid()
@@ -114,11 +115,10 @@ class Layout:
         """
         print(self.countdown.seconds_remaining)
         self.update_time_remaining()
-        self.score_mgmt.update_typed_chars(self.typing_box.get("1.0", tk.END))
-        self.score_mgmt.update_accuracy()
         if self.countdown.seconds_remaining < 0:
-            print(time() - self.start)
-            print(f"{self.score_mgmt.accuracy=}")
+            print(self.typing_box.get("1.0", tk.END))
+            print(len(self.typing_box.get("1.0", tk.END)))
+            self.score_mgmt.update_typed_chars(self.typing_box.get("1.0", tk.END))
             self.terminate_grid()
             self.show_end_screen()
         else:
@@ -238,11 +238,14 @@ class Layout:
         self.begin_countdown()
 
     def show_end_screen(self):
+        self.chars_typed_label = ttk.Label(self.root, text=f"{self.score_mgmt.typed_chars} characters typed")
         self.final_results_frame.grid(column=0, row=0)
         self.end_options_frame.grid(column=0, row=1)
         self.accuracy_label.grid(column=0, row=0)
-        self.wpm_label.configure(text=f"{len(self.box_content)} wpm")
+        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_wpm(self.test_length_ms)} wpm")
         self.wpm_label.grid(column=0, row=1)
+        self.chars_typed_label.update()
+        self.chars_typed_label.grid(column=0, row=2)
         self.restart_button.grid(column=0, row=0)
         self.exit_button.grid(column=0, row=3)
         # self.configure_grid_score(frame_pos=(0, 0))
