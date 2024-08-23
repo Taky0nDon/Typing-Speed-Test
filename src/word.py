@@ -13,6 +13,7 @@ class Word:
         self.word_value = word.lower()
         self.word_label = tk.Label(frame, text=self.word_value)
         self.word_label.configure(foreground="black")
+        self.word_list = []
 
 class WordManager():
     def __init__(self) -> None:
@@ -31,10 +32,8 @@ class WordManager():
 
     def generate_word_bank(self) -> list[str]:
         """ Returns a list of random words chosen from the word file"""
-        print("Generating word...")
         with open(WORD_FILE_PATH) as words:
-            word_pool = words.read().strip().split("\n")
-        print(f"{word_pool=}\n{type(word_pool)=}")
+            word_pool = words.read().strip().lower().split("\n")
         return word_pool
 
     def choose_random_words(self, list_length=50) -> list[str]:
@@ -42,6 +41,7 @@ class WordManager():
         for _ in range(list_length):
             current_word = choice(self.generate_word_bank())
             random_words.append(current_word)
+        self.word_list = random_words
         return random_words
 
 
