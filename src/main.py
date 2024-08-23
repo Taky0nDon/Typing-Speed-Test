@@ -6,7 +6,7 @@ from gui import Layout
 
 
 def main() -> None:
-    if sys.argv:
+    if len(sys.argv) > 1:
         TEST_LENGTH_MS = int(sys.argv[1]) * 1000
     else:
         TEST_LENGTH_MS = 60 * 1000
