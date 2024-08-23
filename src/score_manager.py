@@ -1,3 +1,6 @@
+from os import stat
+
+
 class ScoreManager():
     """
     This class keeps track of how many words were typed correctly, and how
@@ -52,14 +55,15 @@ class ScoreManager():
 
         self.missed_chars += len_difference
 
-    def update_typed_chars(self, typed_content: str) -> None:
-        self.typed_chars = len(typed_content.replace(" ", "").strip("\n"))
+    def update_typed_chars(self, typed_content: str) -> int:
+        self.typed_chars = len(typed_content)
+        return len(typed_content)
 
-    def get_words(self, typed_content: str):
-        """
-        Returns the number of 'words' in the typed content. For the purposes of this method,
-        a `word` is five consecutive characters.
-        """
-        word_count = len(typed_content) // 5
-        return word_count
-
+    def calculate_wpm(self, length_of_time_ms: int) -> float:
+        print(f"{length_of_time_ms=}")
+        print(f"{self.typed_chars=}")
+        length_of_time_min = (length_of_time_ms) / (10**3 * 60)
+        wpm = ((self.typed_chars / 5) / length_of_time_min)
+        print(f"{length_of_time_min=}")
+        print(f"{wpm=}")
+        return wpm
