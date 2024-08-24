@@ -59,7 +59,7 @@ class ScoreManager():
         self.typed_chars = len(typed_content)
         return len(typed_content)
 
-    def calculate_wpm(self, length_of_time_ms: int) -> float:
+    def calculate_gross_wpm(self, length_of_time_ms: int) -> float:
         print(f"{length_of_time_ms=}")
         print(f"{self.typed_chars=}")
         length_of_time_min = (length_of_time_ms) / (10**3 * 60)
@@ -67,3 +67,22 @@ class ScoreManager():
         print(f"{length_of_time_min=}")
         print(f"{wpm=}")
         return wpm
+
+    def count_errors(self, target_words: list[str], typed_words: list[str]) -> int:
+        errors = 0
+        word_pairs = zip(target_words, typed_words)
+        print(f"{target_words=}")
+        for pair in word_pairs:
+            sorted_by_len = [
+                    (word, len(word)) for word in sorted(pair, key=lambda x: len(x))
+                    ]
+            if len(sorted_by_len) > 1:
+                longer_word = sorted_by_len[1][0]
+                shorter_word = sorted_by_len[0][0]
+                errors += sorted_by_len[1][1] - sorted_by_len[0][1]
+                for i, char in enumerate(shorter_word):
+                    conjugate_char = longer_word[i]
+                    if char != conjugate_char:
+                        errors += 1
+            print(f"{pair=},\n{sorted_by_len=}\n{errors=}")
+        return errors
