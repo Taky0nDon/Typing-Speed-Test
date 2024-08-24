@@ -49,7 +49,7 @@ class Layout:
         self.typing_box.bind("<space>", self.on_space)
         self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
         self.render_score(is_new_test=is_new_test)
-        self.show_word_box(self.word_mgmt.word_value_list)
+        self.show_word_box()
 
         self.end_options_frame = ttk.Frame(self.root)
         self.final_results_frame = ttk.Frame(self.root)
@@ -206,7 +206,7 @@ class Layout:
         self.word_mgmt.current_word_index += 1
         self.update_score()
 
-    def show_word_box(self, word_bank) -> None:
+    def show_word_box(self) -> None:
         """
         Renders a grid of Word objects, this is the text the user will be
         typing during the test.
@@ -238,11 +238,13 @@ class Layout:
         self.begin_countdown()
 
     def show_end_screen(self):
+        self.score_mgmt.count_errors(self.word_mgmt.word_list, self.typing_box.get("1.0", tk.END).split())
+
         self.chars_typed_label = ttk.Label(self.root, text=f"{self.score_mgmt.typed_chars} characters typed")
         self.final_results_frame.grid(column=0, row=0)
         self.end_options_frame.grid(column=0, row=1)
         self.accuracy_label.grid(column=0, row=0)
-        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_wpm(self.test_length_ms)} wpm")
+        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_gross_wpm(self.test_length_ms)} wpm")
         self.wpm_label.grid(column=0, row=1)
         self.chars_typed_label.update()
         self.chars_typed_label.grid(column=0, row=2)
