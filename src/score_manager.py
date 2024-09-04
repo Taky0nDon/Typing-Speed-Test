@@ -9,7 +9,7 @@ class ScoreManager():
     def __init__(self) -> None:
        self.char_errors = 0
        self.typed_entries = 0
-       self.accuracy = "0.00%"
+       self.accuracy = ""
 
     def calculate_char_errors(self, target: str='', typed: str='') -> None:
         """
@@ -47,6 +47,13 @@ class ScoreManager():
         print(f" gross {wpm=:.2f}")
         return wpm
 
+    def calculate_net_wpm(self, time_ms: int):
+        gross_wpm = self.calculate_gross_wpm(time_ms)
+        uncorrected_errors = self.char_errors
+        time_min = time_ms * 60_000
+        net_wpm = gross_wpm - (uncorrected_errors / time_min)
+        return net_wpm
+
     def count_errors(self, target_words: list[str], typed_words: list[str]) -> int:
         errors = 0
         word_pairs = zip(target_words, typed_words)
@@ -68,11 +75,10 @@ class ScoreManager():
         return errors
 
     def update_accuracy(self) -> float:
-        print("HERE~!!!!!!!!!!")
-        print(f"{self.char_errors=}, {self.typed_entries=}")
         correct_chars = self.typed_entries - self.char_errors
         accuracy = correct_chars / self.typed_entries
-        accuracy_str = f"{accuracy: .2f}%"
+        accuracy_str = f"{accuracy: .2%}"
         self.accuracy = accuracy_str
+        print(self.accuracy)
         return accuracy
 
