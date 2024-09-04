@@ -3,6 +3,11 @@
 Written in python and using tkinter, this is a simple graphical app for
 testing your typing talent!
 
+## How to run
+`py path/to/src/main.py [test_length]`
+* test length is an interger representing seconds
+* default value of test_length is 60 seconds
+
 ## Coming Features
 
 [x] 1. Actually ending the test when time is up.
