@@ -1,7 +1,6 @@
 import tkinter as tk
 from time import time
 from tkinter import ttk
-from random import choice
 
 from word import Word, WordManager
 from score_manager import ScoreManager
@@ -48,7 +47,7 @@ class Layout:
         self.typing_box = ReadonlyText(self.typing_frame, height=10, width=50)
         self.typing_box.bind("<space>", self.on_space)
         self.exit_button = ttk.Button(self.root, text="Quit", command=exit)
-        self.render_score(is_new_test=is_new_test)
+        self.render_score()
         self.show_word_box()
 
         self.end_options_frame = ttk.Frame(self.root)
@@ -78,12 +77,8 @@ class Layout:
         frame_pos: tuple[int, int],
     ):
         self.score_frame.grid(column=frame_pos[0], row=frame_pos[1])
-        self.missed_word_label.grid(column=0, row=0)
-        self.correct_word_label.grid(column=0, row=1)
         self.error_label.grid(column=0, row=2)
         self.chars_label.grid(column=0, row=3)
-        self.missed_word_count.grid(column=1, row=0)
-        self.accurate_word_count.grid(column=1, row=1)
         self.error_count.grid(column=1, row=2)
         self.chars_count.grid(column=1, row=3)
 
@@ -118,7 +113,7 @@ class Layout:
         if self.countdown.seconds_remaining < 0:
             print(self.typing_box.get("1.0", tk.END))
             print(len(self.typing_box.get("1.0", tk.END)))
-            self.score_mgmt.update_typed_chars(self.typing_box.get("1.0", tk.END))
+            self.score_mgmt.update_typed_entries(self.typing_box.get("1.0", tk.END))
             self.terminate_grid()
             self.show_end_screen()
         else:
@@ -126,41 +121,21 @@ class Layout:
 
     def update_score(self):
         """Displays up to date statistics as the user types"""
-        self.missed_word_count.configure(text=self.score_mgmt.missed_words)
-        self.accurate_word_count.configure(text=self.score_mgmt.correct_words)
-        self.error_count.configure(text=self.score_mgmt.missed_chars)
-        self.chars_count.configure(text=self.score_mgmt.typed_chars)
+        self.error_count.configure(text=self.score_mgmt.char_errors)
+        self.chars_count.configure(text=self.score_mgmt.typed_entries)
 
-    def render_score(self, is_new_test: bool):
+    def render_score(self):
         """
         Creates the frame containing all widgets related to displaying the
         score. Displays final score for end of state, and 0's for new tests.
         """
         self.score_frame = ttk.Frame(self.root)
-        if is_new_test:
-            scores = {
-                "missed_words": 0,
-                "correct_words": 0,
-                "missed_chars": 0,
-                "typed_chars": 0,
-            }
-        else:
-            scores = {
-                "missed_words": self.score_mgmt.missed_words,
-                "correct_words": self.score_mgmt.correct_words,
-                "missed_chars": self.score_mgmt.missed_chars,
-                "typed_chars": self.score_mgmt.typed_chars,
-            }
-        self.missed_word_label = ttk.Label(self.score_frame, text="Missed: ")
-        self.correct_word_label = ttk.Label(self.score_frame, text="Correct: ")
+        scores = {
+            "missed_chars": self.score_mgmt.char_errors,
+            "typed_chars": self.score_mgmt.typed_entries,
+        }
         self.error_label = ttk.Label(self.score_frame, text="Errors: ")
         self.chars_label = ttk.Label(self.score_frame, text="Typed: ")
-        self.missed_word_count = ttk.Label(
-            self.score_frame, text=scores["missed_words"]
-        )
-        self.accurate_word_count = ttk.Label(
-            self.score_frame, text=scores["correct_words"]
-        )
         self.error_count = ttk.Label(self.score_frame, text=scores["missed_chars"])
         self.chars_count = ttk.Label(self.score_frame, text=scores["typed_chars"])
 
@@ -193,11 +168,7 @@ class Layout:
                 self.word_mgmt.current_word_index,
                 "green",
             )
-            self.score_mgmt.increase_correct_count(last_typed_word)
         else:
-            self.score_mgmt.increase_missed_count(
-                target_word=target_word_val, typed_word=last_typed_word
-            )
             self.word_mgmt.recolor_word(
                 self.word_mgmt.word_objects,
                 self.word_mgmt.current_word_index,
@@ -239,15 +210,16 @@ class Layout:
 
     def show_end_screen(self):
         self.score_mgmt.count_errors(self.word_mgmt.word_list, self.typing_box.get("1.0", tk.END).split())
+        self.score_mgmt.update_accuracy()
+        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_gross_wpm(self.test_length_ms):.2f} wpm")
+        self.accuracy_label.configure(text=self.score_mgmt.accuracy)
 
-        self.chars_typed_label = ttk.Label(self.root, text=f"{self.score_mgmt.typed_chars} characters typed")
+        self.chars_typed_label = ttk.Label(self.root, text=f"{self.score_mgmt.typed_entries} characters typed")
         self.final_results_frame.grid(column=0, row=0)
         self.end_options_frame.grid(column=0, row=1)
         self.accuracy_label.grid(column=0, row=0)
-        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_gross_wpm(self.test_length_ms)} wpm")
         self.wpm_label.grid(column=0, row=1)
         self.chars_typed_label.update()
         self.chars_typed_label.grid(column=0, row=2)
         self.restart_button.grid(column=0, row=0)
         self.exit_button.grid(column=0, row=3)
-        # self.configure_grid_score(frame_pos=(0, 0))
