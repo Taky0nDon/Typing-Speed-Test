@@ -211,8 +211,8 @@ class Layout:
     def show_end_screen(self):
         self.score_mgmt.count_errors(self.word_mgmt.word_list, self.typing_box.get("1.0", tk.END).split())
         self.score_mgmt.update_accuracy()
-        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_gross_wpm(self.test_length_ms):.2f} wpm")
-        self.accuracy_label.configure(text=self.score_mgmt.accuracy)
+        self.wpm_label.configure(text=f"{self.score_mgmt.calculate_net_wpm(self.test_length_ms): .0f} wpm")
+        self.accuracy_label.configure(text=f"Accuracy: {self.score_mgmt.accuracy}")
 
         self.chars_typed_label = ttk.Label(self.root, text=f"{self.score_mgmt.typed_entries} characters typed")
         self.final_results_frame.grid(column=0, row=0)
