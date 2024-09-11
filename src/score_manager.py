@@ -38,13 +38,9 @@ class ScoreManager():
 
     def calculate_gross_wpm(self, time_ms: int) -> float:
         entries = self.typed_entries
-        print(f"{time_ms=}")
-        print(f"{self.typed_entries=}")
         length_of_time_min = (time_ms) / (10**3 * 60)
         words = entries / 5
         wpm = round((words / length_of_time_min), 2)
-        print(f"{length_of_time_min=}")
-        print(f" gross {wpm=:.2f}")
         return wpm
 
     def calculate_net_wpm(self, time_ms: int):
@@ -57,7 +53,6 @@ class ScoreManager():
     def count_errors(self, target_words: list[str], typed_words: list[str]) -> int:
         errors = 0
         word_pairs = zip(target_words, typed_words)
-        print(f"{target_words=}")
         for pair in word_pairs:
             sorted_by_len = [
                     (word, len(word)) for word in sorted(pair, key=lambda x: len(x))
@@ -70,7 +65,6 @@ class ScoreManager():
                     conjugate_char = longer_word[i]
                     if char != conjugate_char:
                         errors += 1
-            print(f"{pair=},\n{sorted_by_len=}\n{errors=}")
         self.char_errors = errors
         return errors
 
@@ -79,6 +73,5 @@ class ScoreManager():
         accuracy = correct_chars / self.typed_entries
         accuracy_str = f"{accuracy: .2%}"
         self.accuracy = accuracy_str
-        print(self.accuracy)
         return accuracy
 
